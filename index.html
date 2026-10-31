@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10231f">
+  <title>Campus Delivery Agent</title>
+  <style>
+    :root {
+      --ink: #182522;
+      --muted: #65736e;
+      --line: #e3e9e4;
+      --paper: #f4f7f2;
+      --white: #ffffff;
+      --green: #1e7655;
+      --deep: #10231f;
+      --lime: #c5e86c;
+      --orange: #e8834c;
+      --soft-green: #e8f3ec;
+      --soft-orange: #fff1e8;
+      --shadow: 0 14px 40px rgba(24, 37, 34, .07);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; background: var(--paper); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .topbar {
+      background: var(--deep); color: #f7faf5; padding: 17px max(22px, calc((100vw - 1240px) / 2));
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 740; letter-spacing: -.02em; }
+    .brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 12px; background: var(--lime); color: var(--deep); font-size: 20px; }
+    .brand small { display: block; color: #aebbb5; font-size: 11px; font-weight: 550; letter-spacing: .08em; text-transform: uppercase; margin-top: 2px; }
+    .top-actions { display: flex; gap: 9px; flex-wrap: wrap; justify-content: flex-end; }
+    .button { border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 680; transition: transform .15s, background .15s; }
+    .button:hover { transform: translateY(-1px); }
+    .button.primary { background: var(--lime); color: var(--deep); }
+    .button.light { background: #263a34; color: #f4f8f2; border: 1px solid #3b4b45; }
+    .button.green { background: var(--green); color: white; }
+    .button.outline { background: white; color: var(--ink); border: 1px solid var(--line); }
+    .button.danger { background: var(--soft-orange); color: #a44c24; }
+    main { max-width: 1240px; margin: 0 auto; padding: 28px 22px 56px; }
+    .hero { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin: 10px 0 22px; }
+    .eyebrow { color: var(--green); text-transform: uppercase; font-size: 11px; font-weight: 800; letter-spacing: .12em; margin: 0 0 8px; }
+    h1 { margin: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: -.045em; line-height: 1.06; }
+    .hero p { max-width: 650px; color: var(--muted); margin: 11px 0 0; line-height: 1.55; }
+    .simulation-tag { border: 1px solid #dbe7d6; color: #32674e; background: #edf6e9; padding: 9px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0; }
+    .stat { background: var(--white); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; box-shadow: 0 4px 18px rgba(24,37,34,.025); }
+    .stat-label { color: var(--muted); font-size: 12px; font-weight: 650; }
+    .stat-value { font-size: 27px; font-weight: 780; letter-spacing: -.04em; margin-top: 5px; }
+    .stat-note { color: #87938d; font-size: 11px; margin-top: 3px; }
+    .grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 16px; align-items: start; }
+    .panel { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 20px; box-shadow: var(--shadow); }
+    .panel + .panel, .wide-panel { margin-top: 16px; }
+    .panel-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 17px; }
+    .panel h2 { font-size: 17px; letter-spacing: -.025em; margin: 0; }
+    .panel-desc { color: var(--muted); font-size: 12px; line-height: 1.45; margin: 6px 0 0; }
+    .mini-label { color: #87938d; text-transform: uppercase; letter-spacing: .1em; font-size: 10px; font-weight: 800; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { display: grid; gap: 6px; min-width: 0; }
+    .field.full { grid-column: 1 / -1; }
+    label { font-size: 12px; font-weight: 700; color: #44534d; }
+    input, select {
+      width: 100%; min-width: 0; border: 1px solid #dce4de; border-radius: 9px; background: #fff;
+      color: var(--ink); padding: 10px 11px; outline: none;
+    }
+    input:focus, select:focus { border-color: #4c9a73; box-shadow: 0 0 0 3px rgba(76,154,115,.12); }
+    .food-list { display: grid; gap: 8px; margin: 14px 0 16px; }
+    .food-row { display: grid; grid-template-columns: 1fr 84px; align-items: center; gap: 10px; padding: 10px 11px; background: #f8faf7; border: 1px solid #edf1ed; border-radius: 10px; }
+    .food-name { font-weight: 680; font-size: 12px; }
+    .food-meta { color: var(--muted); font-size: 11px; margin-top: 3px; }
+    .food-row input { padding: 8px; text-align: center; }
+    .priority-preview { background: #f2f7f1; border: 1px solid #e5eee3; border-radius: 10px; padding: 10px 12px; color: #50645a; font-size: 12px; margin: 12px 0; }
+    .full-button { width: 100%; }
+    .orders-toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+    .orders-list { display: grid; gap: 10px; max-height: 440px; overflow: auto; }
+    .order-card { padding: 13px; border: 1px solid var(--line); border-radius: 12px; }
+    .order-top { display: flex; justify-content: space-between; gap: 10px; }
+    .order-id { font-size: 10px; color: #87938d; font-weight: 800; letter-spacing: .08em; }
+    .order-person { font-size: 13px; font-weight: 750; margin-top: 3px; }
+    .order-place { color: var(--muted); font-size: 11px; margin-top: 2px; }
+    .order-items { color: #46554e; font-size: 11px; line-height: 1.45; margin-top: 10px; }
+    .order-foot { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
+    .chip { display: inline-flex; align-items: center; gap: 4px; border-radius: 999px; padding: 5px 8px; font-size: 10px; font-weight: 750; background: #f1f4f1; color: #52625a; }
+    .chip.high { color: #983d28; background: #fff0e9; }
+    .chip.medium { color: #8a5a13; background: #fff5d9; }
+    .chip.low { color: #30684e; background: #eaf5ed; }
+    .chip.delivered { color: #286342; background: #e4f3e7; }
+    .empty { border: 1px dashed #d8e1da; background: #fafcf9; border-radius: 12px; padding: 24px 16px; color: var(--muted); text-align: center; font-size: 12px; line-height: 1.5; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .search-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .route-output { min-height: 82px; margin-top: 14px; background: #f7faf7; border: 1px solid #e9efea; border-radius: 11px; padding: 13px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .route-output strong { color: var(--ink); }
+    .tour-summary { display: grid; gap: 8px; margin-top: 14px; }
+    .tour-stop { display: grid; grid-template-columns: 26px 1fr auto; gap: 9px; align-items: center; padding: 10px; border: 1px solid #e8eee9; border-radius: 10px; }
+    .stop-num { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 8px; background: var(--deep); color: white; font-size: 11px; font-weight: 800; }
+    .stop-title { font-weight: 750; font-size: 12px; }
+    .stop-meta { color: var(--muted); font-size: 10px; margin-top: 3px; }
+    .stop-time { text-align: right; color: var(--green); font-size: 11px; font-weight: 800; }
+    .map-layout { display: grid; grid-template-columns: 1fr 1.1fr; gap: 18px; }
+    .location-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .location-pill { background: #f1f5f1; border: 1px solid #e4ebe5; border-radius: 999px; padding: 7px 10px; font-size: 11px; color: #3e5148; font-weight: 680; }
+    .edge-list { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .edge { display: flex; justify-content: space-between; gap: 7px; border-bottom: 1px solid #edf1ed; padding: 7px 0; color: #56645e; font-size: 10px; }
+    .edge b { color: var(--ink); white-space: nowrap; }
+    .settings-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end; }
+    .notice { color: #6b7972; font-size: 11px; line-height: 1.5; margin: 12px 0 0; }
+    .toast { position: fixed; right: 20px; bottom: 20px; max-width: min(380px, calc(100vw - 40px)); padding: 13px 16px; background: var(--deep); color: white; border-radius: 12px; box-shadow: var(--shadow); font-size: 12px; z-index: 5; opacity: 0; transform: translateY(8px); pointer-events: none; transition: .2s; }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .footer-note { color: #89958f; font-size: 10px; text-align: center; margin: 22px 0 0; }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 620px) {
+      .topbar { align-items: flex-start; flex-direction: column; padding: 14px 16px; }
+      main { padding: 20px 14px 40px; }
+      .hero { align-items: flex-start; flex-direction: column; gap: 13px; }
+      .stats { gap: 8px; }
+      .stat { padding: 12px; }
+      .stat-value { font-size: 23px; }
+      .panel { padding: 16px; }
+      .two-col, .map-layout { grid-template-columns: 1fr; }
+      .settings-row { grid-template-columns: 1fr 1fr; }
+      .settings-row .button { grid-column: 1 / -1; }
+      .edge-list { grid-template-columns: 1fr; }
+      .simulation-tag { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">↗</span><span>Campus Delivery Agent<small>AI project · local simulation</small></span></div>
+    <div class="top-actions">
+      <button class="button light" id="demoButton" type="button">Load sample orders</button>
+      <button class="button primary" id="tourButton" type="button">Schedule delivery tour</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div><p class="eyebrow">Intelligent Food Delivery Agent</p><h1>Campus orders, routed with AI.</h1><p>Enter cafeteria orders, compare graph searches, and plan a delivery tour that checks priority, carrying capacity, and battery before it leaves.</p></div>
+      <span class="simulation-tag">● Simulation only · no physical robot connected</span>
+    </section>
+
+    <section class="stats" aria-label="Agent status">
+      <article class="stat"><div class="stat-label">Pending orders</div><div class="stat-value" id="pendingCount">0</div><div class="stat-note">Waiting for a delivery tour</div></article>
+      <article class="stat"><div class="stat-label">Delivered in simulation</div><div class="stat-value" id="deliveredCount">0</div><div class="stat-note">Completed sample trips</div></article>
+      <article class="stat"><div class="stat-label">Battery available</div><div class="stat-value" id="batteryValue">100%</div><div class="stat-note" id="batteryNote">Ready at cafeteria</div></article>
+      <article class="stat"><div class="stat-label">Payload limit</div><div class="stat-value" id="capacityValue">8 kg</div><div class="stat-note">Maximum load per tour</div></article>
+    </section>
+
+    <div class="grid">
+      <section class="panel">
+        <div class="panel-head"><div><h2>Create a customer order</h2><p class="panel-desc">Stock is reserved when the order is placed. Priority uses urgency, deadline, and perishable food.</p></div><span class="mini-label">01 · Order</span></div>
+        <form id="orderForm">
+          <div class="form-grid">
+            <div class="field"><label for="customer">Customer name</label><input id="customer" name="customer" placeholder="e.g. Monika" required maxlength="60"></div>
+            <div class="field"><label for="destination">Delivery location</label><select id="destination" name="destination" required></select></div>
+            <div class="field"><label for="urgency">Requested urgency</label><select id="urgency" name="urgency"><option value="urgent">Urgent</option><option value="normal" selected>Normal</option><option value="low">Low</option></select></div>
+            <div class="field"><label for="deadline">Deadline in minutes</label><input id="deadline" name="deadline" type="number" min="1" max="240" value="20" required></div>
+          </div>
+          <div class="food-list" id="foodInputs"></div>
+          <div class="priority-preview" id="priorityPreview">Priority preview: choose items to calculate the score.</div>
+          <button class="button green full-button" type="submit">Add order to queue</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><div><h2>Order queue</h2><p class="panel-desc">The scheduler selects feasible pending orders and leaves the rest queued.</p></div><span class="mini-label">02 · Queue</span></div>
+        <div class="orders-list" id="ordersList"></div>
+        <div class="orders-toolbar" style="margin-top:12px">
+          <button class="button green" id="queueTourButton" type="button">Schedule this queue</button>
+          <button class="button outline" id="rechargeButton" type="button">Recharge at cafeteria</button>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel wide-panel">
+      <div class="panel-head"><div><h2>Search and route lab</h2><p class="panel-desc">Compare BFS and DFS traversal, or use A* to find the least-time path on the weighted campus graph.</p></div><span class="mini-label">03 · Search</span></div>
+      <div class="two-col">
+        <div>
+          <div class="form-grid">
+            <div class="field"><label for="searchStart">Start location</label><select id="searchStart"></select></div>
+            <div class="field"><label for="searchGoal">Destination</label><select id="searchGoal"></select></div>
+          </div>
+          <div class="search-actions">
+            <button class="button outline" id="bfsButton" type="button">Show BFS</button>
+            <button class="button outline" id="dfsButton" type="button">Show DFS</button>
+            <button class="button green" id="astarButton" type="button">Find with A*</button>
+          </div>
+          <div class="route-output" id="searchOutput" aria-live="polite">Choose locations and select a search method.</div>
+        </div>
+        <div>
+          <div class="mini-label">A* heuristic</div>
+          <p class="panel-desc" style="font-size:13px;margin-top:8px"><strong>f(n) = g(n) + h(n)</strong></p>
+          <p class="panel-desc" style="font-size:12px">g(n) is travel time so far. h(n) is Manhattan distance to the destination. BFS and DFS show traversal order; A* uses the road times to find a least-time route.</p>
+          <div class="route-output"><strong>Priority rule</strong><br>Urgency points + deadline points + 1 point for perishable food. High: 5+, Medium: 3–4, Low: 0–2.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel wide-panel">
+      <div class="panel-head"><div><h2>Delivery tour planner</h2><p class="panel-desc">The planner keeps enough battery for a return to the cafeteria and stays within the robot's load limit.</p></div><span class="mini-label">04 · Plan</span></div>
+      <div class="two-col">
+        <div>
+          <div class="settings-row">
+            <div class="field"><label for="batterySetting">Battery now (%)</label><input id="batterySetting" type="number" min="0" max="100" step="1"></div>
+            <div class="field"><label for="capacitySetting">Payload limit (kg)</label><input id="capacitySetting" type="number" min="0.1" max="100" step="0.1"></div>
+            <div class="field"><label for="drainSetting">Battery use (%/min)</label><input id="drainSetting" type="number" min="0.1" max="100" step="0.1"></div>
+            <button class="button outline" id="saveSettings" type="button">Save</button>
+          </div>
+          <p class="notice">Sample values: 100% battery, 8 kg capacity, and 3 battery points per travel minute. Change them to demonstrate resource limits.</p>
+        </div>
+        <div>
+          <div class="orders-toolbar">
+            <button class="button green" id="runTourButton" type="button">Schedule delivery tour</button>
+            <button class="button danger" id="resetButton" type="button">Reset demo data</button>
+          </div>
+          <div class="route-output" id="tourOutput" aria-live="polite">Your selected stops, route time, battery use, and pending-order reasons will appear here.</div>
+        </div>
+      </div>
+      <div class="tour-summary" id="tourStops"></div>
+    </section>
+
+    <section class="panel wide-panel">
+      <div class="panel-head"><div><h2>Campus map and cafeteria data</h2><p class="panel-desc">The sample campus is represented as an undirected graph. Each connection has a travel-time cost in minutes.</p></div><span class="mini-label">05 · Map</span></div>
+      <div class="map-layout">
+        <div><div class="mini-label">Locations</div><div class="location-list" id="locationList"></div></div>
+        <div><div class="mini-label">Road connections</div><div class="edge-list" id="edgeList" style="margin-top:7px"></div></div>
+      </div>
+      <p class="notice">The campus, stock, prices, travel times, and robot settings are example data. Delivery statuses are simulated and do not represent a real robot.</p>
+    </section>
+
+    <p class="footer-note">Campus Delivery Agent · AI class project prototype · All orders stay in this browser on this device.</p>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const STORAGE_KEY = "campusDeliveryAgent.v1";
+    const CAFETERIA = "Cafeteria";
+    const locations = {
+      "Cafeteria": { x: 0, y: 0 }, "Library": { x: 1, y: 0 }, "Admin Block": { x: 0, y: 1 },
+      "Auditorium": { x: 0, y: -1 }, "Engineering Block": { x: 2, y: 0 },
+      "Science Block": { x: 2, y: 1 }, "Hostel": { x: 3, y: 1 }, "Sports Complex": { x: 3, y: -1 }
+    };
+    const roads = [
+      ["Cafeteria", "Library", 1], ["Cafeteria", "Admin Block", 1], ["Cafeteria", "Auditorium", 1],
+      ["Library", "Engineering Block", 1], ["Library", "Admin Block", 2], ["Library", "Auditorium", 2],
+      ["Engineering Block", "Science Block", 1], ["Engineering Block", "Sports Complex", 2],
+      ["Science Block", "Hostel", 1], ["Science Block", "Admin Block", 2],
+      ["Sports Complex", "Hostel", 2], ["Auditorium", "Sports Complex", 3]
+    ];
+    const defaultMenu = [
+      { id: "sandwich", name: "Vegetable Sandwich", price: 60, weight: 0.4, stock: 20, perishable: true },
+      { id: "thali", name: "Vegetarian Thali", price: 120, weight: 0.7, stock: 20, perishable: true },
+      { id: "wrap", name: "Paneer Wrap", price: 85, weight: 0.35, stock: 15, perishable: true },
+      { id: "juice", name: "Packaged Juice", price: 35, weight: 0.25, stock: 25, perishable: false }
+    ];
+    const graph = Object.fromEntries(Object.keys(locations).map(name => [name, {}]));
+    roads.forEach(([a, b, minutes]) => { graph[a][b] = minutes; graph[b][a] = minutes; });
+
+    function freshState() {
+      return { menu: defaultMenu.map(item => ({ ...item })), orders: [], nextOrder: 1, battery: 100, capacity: 8, drain: 3 };
+    }
+    function readState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (!saved) return freshState();
+        const base = freshState();
+        return { ...base, ...saved, menu: Array.isArray(saved.menu) ? saved.menu : base.menu, orders: Array.isArray(saved.orders) ? saved.orders : [] };
+      } catch (_) { return freshState(); }
+    }
+    let state = readState();
+    function saveState() {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) { /* Private browsing may block storage; app still works for this session. */ }
+    }
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+    }
+    function money(value) { return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(value); }
+    function getItem(id) { return state.menu.find(item => item.id === id); }
+    function priority(urgency, deadline, items) {
+      const urgencyPoints = { urgent: 3, normal: 1, low: 0 }[urgency] ?? 1;
+      const deadlinePoints = deadline <= 10 ? 2 : deadline <= 20 ? 1 : 0;
+      const perishable = Object.entries(items).some(([id, qty]) => qty > 0 && getItem(id)?.perishable);
+      const score = urgencyPoints + deadlinePoints + (perishable ? 1 : 0);
+      return { score, level: score >= 5 ? "High" : score >= 3 ? "Medium" : "Low" };
+    }
+    function orderWeight(order) { return Object.entries(order.items).reduce((sum, [id, qty]) => sum + (getItem(id)?.weight || 0) * qty, 0); }
+    function orderPrice(order) { return Object.entries(order.items).reduce((sum, [id, qty]) => sum + (getItem(id)?.price || 0) * qty, 0); }
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message; toast.classList.add("show");
+      clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove("show"), 2800);
+    }
+    function optionsHTML(includeCafe = false) {
+      return Object.keys(locations).filter(name => includeCafe || name !== CAFETERIA).map(name => `<option value="${escapeHTML(name)}">${escapeHTML(name)}</option>`).join("");
+    }
+    function renderSelectors() {
+      document.getElementById("destination").innerHTML = optionsHTML(false);
+      document.getElementById("searchStart").innerHTML = optionsHTML(true);
+      document.getElementById("searchGoal").innerHTML = optionsHTML(true);
+      document.getElementById("searchStart").value = CAFETERIA;
+      document.getElementById("searchGoal").value = "Hostel";
+    }
+    function renderFoodInputs() {
+      document.getElementById("foodInputs").innerHTML = state.menu.map(item => `
+        <div class="food-row"><div><div class="food-name">${escapeHTML(item.name)}</div><div class="food-meta">${money(item.price)} · ${item.weight.toFixed(2)} kg · ${item.stock} in stock</div></div>
+        <input aria-label="Quantity of ${escapeHTML(item.name)}" data-qty="${escapeHTML(item.id)}" type="number" min="0" max="${item.stock}" value="0"></div>`).join("");
+      document.querySelectorAll("[data-qty]").forEach(input => input.addEventListener("input", updatePriorityPreview));
+    }
+    function renderOrders() {
+      const container = document.getElementById("ordersList");
+      if (!state.orders.length) {
+        container.innerHTML = `<div class="empty">No orders yet.<br>Choose <strong>Load sample orders</strong> or create your first order.</div>`;
+        return;
+      }
+      container.innerHTML = state.orders.slice().reverse().map(order => {
+        const itemText = Object.entries(order.items).filter(([, qty]) => qty > 0).map(([id, qty]) => `${qty} × ${escapeHTML(getItem(id)?.name || id)}`).join(", ");
+        const level = String(order.priorityLevel || "Low").toLowerCase();
+        const delivered = order.status === "Delivered (simulated)";
+        return `<article class="order-card"><div class="order-top"><div><div class="order-id">${escapeHTML(order.id)}</div><div class="order-person">${escapeHTML(order.customer)}</div><div class="order-place">${escapeHTML(order.location)}</div></div><span class="chip ${delivered ? "delivered" : level}">${delivered ? "Delivered" : `${escapeHTML(order.priorityLevel)} priority`}</span></div>
+        <div class="order-items">${itemText || "No items"}</div><div class="order-foot"><span class="chip">Due ${Number(order.deadline)} min</span><span class="chip">${orderWeight(order).toFixed(2)} kg</span><span class="chip">${money(orderPrice(order))}</span><span class="chip">${escapeHTML(order.status)}</span></div></article>`;
+      }).join("");
+    }
+    function renderMap() {
+      document.getElementById("locationList").innerHTML = Object.keys(locations).map(name => `<span class="location-pill">${escapeHTML(name)}${name === CAFETERIA ? " · start" : ""}</span>`).join("");
+      document.getElementById("edgeList").innerHTML = roads.map(([a, b, time]) => `<div class="edge"><span>${escapeHTML(a)} ↔ ${escapeHTML(b)}</span><b>${time} min</b></div>`).join("");
+    }
+    function renderStats() {
+      const pending = state.orders.filter(order => order.status === "Pending").length;
+      const delivered = state.orders.filter(order => order.status === "Delivered (simulated)").length;
+      document.getElementById("pendingCount").textContent = pending;
+      document.getElementById("deliveredCount").textContent = delivered;
+      document.getElementById("batteryValue").textContent = `${Number(state.battery).toFixed(0)}%`;
+      document.getElementById("batteryNote").textContent = Number(state.battery) < 25 ? "Recharge recommended" : "Ready at cafeteria";
+      document.getElementById("capacityValue").textContent = `${Number(state.capacity).toFixed(1)} kg`;
+      document.getElementById("batterySetting").value = Number(state.battery).toFixed(0);
+      document.getElementById("capacitySetting").value = Number(state.capacity).toFixed(1);
+      document.getElementById("drainSetting").value = Number(state.drain).toFixed(1);
+    }
+    function render() {
+      renderFoodInputs(); renderOrders(); renderMap(); renderStats(); updatePriorityPreview();
+    }
+    function updatePriorityPreview() {
+      const items = {};
+      document.querySelectorAll("[data-qty]").forEach(input => { items[input.dataset.qty] = Number(input.value || 0); });
+      const urgency = document.getElementById("urgency")?.value || "normal";
+      const deadline = Number(document.getElementById("deadline")?.value || 20);
+      const result = priority(urgency, deadline, items);
+      const weight = Object.entries(items).reduce((sum, [id, qty]) => sum + (getItem(id)?.weight || 0) * qty, 0);
+      document.getElementById("priorityPreview").textContent = `Priority preview: ${result.level} (score ${result.score}) · order weight ${weight.toFixed(2)} kg`;
+    }
+    function bfs(start) {
+      const queue = [start], visited = new Set([start]), order = [];
+      while (queue.length) {
+        const current = queue.shift(); order.push(current);
+        Object.keys(graph[current]).sort().forEach(next => { if (!visited.has(next)) { visited.add(next); queue.push(next); } });
+      }
+      return order;
+    }
+    function dfs(start) {
+      const stack = [start], visited = new Set(), order = [];
+      while (stack.length) {
+        const current = stack.pop(); if (visited.has(current)) continue;
+        visited.add(current); order.push(current);
+        Object.keys(graph[current]).sort().reverse().forEach(next => { if (!visited.has(next)) stack.push(next); });
+      }
+      return order;
+    }
+    function heuristic(a, b) { return Math.abs(locations[a].x - locations[b].x) + Math.abs(locations[a].y - locations[b].y); }
+    function astar(start, goal) {
+      const frontier = [{ node: start, cost: 0, estimate: heuristic(start, goal) }];
+      const cameFrom = { [start]: null }, best = { [start]: 0 };
+      while (frontier.length) {
+        frontier.sort((x, y) => x.estimate - y.estimate || x.cost - y.cost || x.node.localeCompare(y.node));
+        const current = frontier.shift();
+        if (current.cost > best[current.node]) continue;
+        if (current.node === goal) {
+          const path = []; let node = goal;
+          while (node !== null) { path.push(node); node = cameFrom[node]; }
+          path.reverse(); return { path, cost: current.cost };
+        }
+        Object.entries(graph[current.node]).forEach(([next, time]) => {
+          const cost = current.cost + time;
+          if (cost < (best[next] ?? Infinity)) {
+            best[next] = cost; cameFrom[next] = current.node;
+            frontier.push({ node: next, cost, estimate: cost + heuristic(next, goal) });
+          }
+        });
+      }
+      return { path: [], cost: Infinity };
+    }
+    function addOrder(customer, items, location, urgency, deadline) {
+      const priorityResult = priority(urgency, deadline, items);
+      const order = {
+        id: `O${String(state.nextOrder).padStart(3, "0")}`, customer, items,
+        location, urgency, deadline, priorityScore: priorityResult.score,
+        priorityLevel: priorityResult.level, status: "Pending"
+      };
+      state.nextOrder += 1; state.orders.push(order); return order;
+    }
+    document.getElementById("orderForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const form = new FormData(event.currentTarget);
+      const items = {};
+      document.querySelectorAll("[data-qty]").forEach(input => { items[input.dataset.qty] = Number(input.value || 0); });
+      const chosen = Object.entries(items).filter(([, qty]) => qty > 0);
+      if (!chosen.length) { showToast("Choose at least one food item."); return; }
+      for (const [id, qty] of chosen) {
+        const item = getItem(id);
+        if (qty > item.stock) { showToast(`Only ${item.stock} ${item.name} in stock.`); return; }
+      }
+      const customerName = String(form.get("customer")).trim();
+      if (!customerName) { showToast("Enter the customer's name."); return; }
+      const location = String(form.get("destination"));
+      if (location === CAFETERIA) { showToast("Choose a delivery destination."); return; }
+      chosen.forEach(([id, qty]) => { getItem(id).stock -= qty; });
+      const order = addOrder(customerName, items, location, String(form.get("urgency")), Number(form.get("deadline")));
+      saveState(); render(); event.currentTarget.reset();
+      document.getElementById("deadline").value = 20;
+      updatePriorityPreview();
+      showToast(`${order.id} added · ${order.priorityLevel} priority.`);
+    });
+    document.getElementById("urgency").addEventListener("change", updatePriorityPreview);
+    document.getElementById("deadline").addEventListener("input", updatePriorityPreview);
+    document.getElementById("bfsButton").addEventListener("click", () => {
+      const start = document.getElementById("searchStart").value;
+      document.getElementById("searchOutput").innerHTML = `<strong>BFS traversal from ${escapeHTML(start)}</strong><br>${bfs(start).map(escapeHTML).join(" → ")}<br><span>BFS explores graph layers using a queue. It does not minimize weighted travel time.</span>`;
+    });
+    document.getElementById("dfsButton").addEventListener("click", () => {
+      const start = document.getElementById("searchStart").value;
+      document.getElementById("searchOutput").innerHTML = `<strong>DFS traversal from ${escapeHTML(start)}</strong><br>${dfs(start).map(escapeHTML).join(" → ")}<br><span>DFS follows a branch using a stack before backtracking.</span>`;
+    });
+    document.getElementById("astarButton").addEventListener("click", () => {
+      const start = document.getElementById("searchStart").value, goal = document.getElementById("searchGoal").value;
+      const result = astar(start, goal);
+      document.getElementById("searchOutput").innerHTML = `<strong>A* least-time route</strong><br>${result.path.map(escapeHTML).join(" → ")}<br><strong>Estimated travel time: ${result.cost} minute${result.cost === 1 ? "" : "s"}</strong>`;
+    });
+    function scheduleTour() {
+      const pending = state.orders.filter(order => order.status === "Pending");
+      const output = document.getElementById("tourOutput"), stopsElement = document.getElementById("tourStops");
+      stopsElement.innerHTML = "";
+      if (!pending.length) { output.innerHTML = "<strong>No pending orders.</strong> Add or load orders to plan a delivery tour."; return; }
+      const batteryBefore = Number(state.battery), capacity = Number(state.capacity), drain = Number(state.drain);
+      let current = CAFETERIA, elapsed = 0, usedMinutes = 0, loadedWeight = 0;
+      const remaining = pending.slice(), stops = [];
+      while (remaining.length) {
+        const choices = [];
+        for (const order of remaining) {
+          const weight = orderWeight(order);
+          if (weight > capacity || loadedWeight + weight > capacity) continue;
+          const leg = astar(current, order.location), returnTrip = astar(order.location, CAFETERIA);
+          if (!leg.path.length || (usedMinutes + leg.cost + returnTrip.cost) * drain > batteryBefore + 1e-9) continue;
+          const eta = elapsed + leg.cost, late = Math.max(0, eta - Number(order.deadline));
+          const rank = [Number(order.priorityScore) * 100 - late * 5 - leg.cost, -Number(order.deadline), -leg.cost, order.id];
+          choices.push({ rank, order, leg, eta });
+        }
+        if (!choices.length) break;
+        choices.sort((a, b) => b.rank[0] - a.rank[0] || b.rank[1] - a.rank[1] || b.rank[2] - a.rank[2] || b.rank[3].localeCompare(a.rank[3]));
+        const selected = choices[0];
+        stops.push(selected); remaining.splice(remaining.findIndex(order => order.id === selected.order.id), 1);
+        loadedWeight += orderWeight(selected.order); current = selected.order.location;
+        elapsed += selected.leg.cost; usedMinutes += selected.leg.cost;
+      }
+      if (!stops.length) {
+        const reasons = pending.map(order => {
+          const reason = orderWeight(order) > capacity ? "order exceeds full carrying capacity" : "battery or payload limit prevents a safe round trip";
+          return `<li><strong>${escapeHTML(order.id)}</strong> for ${escapeHTML(order.customer)}: ${reason}</li>`;
+        }).join("");
+        output.innerHTML = `<strong>No safe tour fits the current settings.</strong><ul>${reasons}</ul>`;
+        return;
+      }
+      const returnTrip = astar(current, CAFETERIA), totalMinutes = usedMinutes + returnTrip.cost;
+      const usedBattery = totalMinutes * drain;
+      state.battery = Math.max(0, batteryBefore - usedBattery);
+      stops.forEach(stop => { stop.order.status = "Delivered (simulated)"; });
+      saveState(); render();
+      stopsElement.innerHTML = stops.map((stop, index) => `<div class="tour-stop"><span class="stop-num">${index + 1}</span><div><div class="stop-title">${escapeHTML(stop.order.id)} · ${escapeHTML(stop.order.location)}</div><div class="stop-meta">${escapeHTML(stop.order.customer)} · ${escapeHTML(stop.leg.path.join(" → "))}</div></div><div class="stop-time">ETA ${stop.eta} min</div></div>`).join("") + `<div class="tour-stop"><span class="stop-num">↩</span><div><div class="stop-title">Return to Cafeteria</div><div class="stop-meta">${escapeHTML(returnTrip.path.join(" → "))}</div></div><div class="stop-time">${returnTrip.cost} min</div></div>`;
+      let pendingNotes = "";
+      if (remaining.length) {
+        const notes = remaining.map(order => {
+          const reason = orderWeight(order) > capacity ? "order exceeds full carrying capacity" : loadedWeight + orderWeight(order) > capacity ? "payload limit for this tour" : "battery reserve for a safe return";
+          return `<li><strong>${escapeHTML(order.id)}</strong> for ${escapeHTML(order.customer)}: ${reason}</li>`;
+        }).join("");
+        pendingNotes = `<br><br><strong>Left pending</strong><ul>${notes}</ul>`;
+      }
+      output.innerHTML = `<strong>Tour complete in simulation.</strong><br>${stops.length} order${stops.length === 1 ? "" : "s"} · ${loadedWeight.toFixed(2)} kg of ${capacity.toFixed(1)} kg · ${totalMinutes} min total.<br>Battery: ${batteryBefore.toFixed(0)}% → ${state.battery.toFixed(0)}% (${usedBattery.toFixed(0)} points used).${pendingNotes}<br><span>No physical robot is controlled.</span>`;
+      showToast(`${stops.length} order${stops.length === 1 ? "" : "s"} scheduled in the simulation.`);
+    }
+    document.getElementById("tourButton").addEventListener("click", scheduleTour);
+    document.getElementById("queueTourButton").addEventListener("click", scheduleTour);
+    document.getElementById("runTourButton").addEventListener("click", scheduleTour);
+    document.getElementById("rechargeButton").addEventListener("click", () => { state.battery = 100; saveState(); renderStats(); showToast("Battery recharged to 100% at the cafeteria."); });
+    document.getElementById("saveSettings").addEventListener("click", () => {
+      const battery = Number(document.getElementById("batterySetting").value);
+      const capacity = Number(document.getElementById("capacitySetting").value);
+      const drain = Number(document.getElementById("drainSetting").value);
+      if (!Number.isFinite(battery) || battery < 0 || battery > 100 || !Number.isFinite(capacity) || capacity <= 0 || !Number.isFinite(drain) || drain <= 0) { showToast("Enter valid battery, capacity, and drain values."); return; }
+      state.battery = battery; state.capacity = capacity; state.drain = drain; saveState(); renderStats(); showToast("Robot settings saved.");
+    });
+    document.getElementById("demoButton").addEventListener("click", () => {
+      const examples = [
+        { customer: "Monika", items: { sandwich: 2 }, location: "Library", urgency: "urgent", deadline: 15 },
+        { customer: "Student A", items: { thali: 1 }, location: "Engineering Block", urgency: "normal", deadline: 18 },
+        { customer: "Student B", items: { juice: 3 }, location: "Hostel", urgency: "normal", deadline: 40 }
+      ];
+      for (const example of examples) {
+        for (const [id, qty] of Object.entries(example.items)) if (getItem(id).stock < qty) { showToast("Not enough sample stock. Reset demo data, then load the examples."); return; }
+      }
+      examples.forEach(example => { Object.entries(example.items).forEach(([id, qty]) => { getItem(id).stock -= qty; }); addOrder(example.customer, example.items, example.location, example.urgency, example.deadline); });
+      saveState(); render(); showToast("Three sample orders added. Schedule a tour to see the planner.");
+    });
+    document.getElementById("resetButton").addEventListener("click", () => {
+      if (!confirm("Clear orders and restore the sample menu, battery, and capacity?")) return;
+      state = freshState(); saveState(); document.getElementById("tourOutput").textContent = "Demo data reset. Add or load orders to plan a tour."; document.getElementById("tourStops").innerHTML = ""; render(); showToast("Demo data reset.");
+    });
+    renderSelectors(); render();
+  </script>
+</body>
+</html>

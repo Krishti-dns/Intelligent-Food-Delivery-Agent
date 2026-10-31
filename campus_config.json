@@ -1,0 +1,38 @@
+{
+  "cafeteria": "Cafeteria",
+  "robot": {
+    "battery_percent": 100.0,
+    "battery_percent_per_minute": 3.0,
+    "carrying_capacity_kg": 8.0
+  },
+  "locations": {
+    "Cafeteria": {"x": 0, "y": 0, "is_cafeteria": true},
+    "Library": {"x": 1, "y": 0},
+    "Admin Block": {"x": 0, "y": 1},
+    "Auditorium": {"x": 0, "y": -1},
+    "Engineering Block": {"x": 2, "y": 0},
+    "Science Block": {"x": 2, "y": 1},
+    "Hostel": {"x": 3, "y": 1},
+    "Sports Complex": {"x": 3, "y": -1}
+  },
+  "roads": [
+    {"from": "Cafeteria", "to": "Library", "minutes": 1},
+    {"from": "Cafeteria", "to": "Admin Block", "minutes": 1},
+    {"from": "Cafeteria", "to": "Auditorium", "minutes": 1},
+    {"from": "Library", "to": "Engineering Block", "minutes": 1},
+    {"from": "Library", "to": "Admin Block", "minutes": 2},
+    {"from": "Library", "to": "Auditorium", "minutes": 2},
+    {"from": "Engineering Block", "to": "Science Block", "minutes": 1},
+    {"from": "Engineering Block", "to": "Sports Complex", "minutes": 2},
+    {"from": "Science Block", "to": "Hostel", "minutes": 1},
+    {"from": "Science Block", "to": "Admin Block", "minutes": 2},
+    {"from": "Sports Complex", "to": "Hostel", "minutes": 2},
+    {"from": "Auditorium", "to": "Sports Complex", "minutes": 3}
+  ],
+  "menu": [
+    {"id": "sandwich", "name": "Vegetable Sandwich", "price_inr": 60, "weight_kg": 0.4, "stock": 20, "perishable": true},
+    {"id": "thali", "name": "Vegetarian Thali", "price_inr": 120, "weight_kg": 0.7, "stock": 20, "perishable": true},
+    {"id": "wrap", "name": "Paneer Wrap", "price_inr": 85, "weight_kg": 0.35, "stock": 15, "perishable": true},
+    {"id": "juice", "name": "Packaged Juice", "price_inr": 35, "weight_kg": 0.25, "stock": 25, "perishable": false}
+  ]
+}
